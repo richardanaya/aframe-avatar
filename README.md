@@ -4,7 +4,7 @@ An avatar for the web metaverse.
 
 This is extremely alpha.
 
-[demo]()
+[demo](https://richardanaya.github.io/aframe-avatar/)
 
 <img width="1011" alt="Screenshot 2024-12-29 at 8 39 55 AM" src="https://github.com/user-attachments/assets/fdea057d-fb8d-4d2e-b730-466cee54b274" />
 
