@@ -29,3 +29,13 @@ This is extremely alpha. MIT licensed.
   >
   </a-entity>
 ```
+
+# Bugs
+* BVH with legs can be janky
+* intiial values of sliders
+* sliders feel weird (can't actually slide)
+
+# Things i'd like to do
+* Pose as JSON
+* PBR textures
+* Animation builder
