@@ -221,17 +221,27 @@ export class Avatar {
   }
 
   updateTexture(type, textureUrl) {
-    const texture = new THREE.TextureLoader().load(textureUrl);
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(textureUrl);
     texture.flipY = false;
     texture.wrapS = THREE.ClampToEdgeWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.repeat.set(1, 1);
+    texture.encoding = THREE.sRGBEncoding;
 
     this.gltf.scene.traverse((object) => {
       if (object.material) {
+        const updateMaterial = (material) => {
+          material.map = texture;
+          material.metalness = 0.0;
+          material.roughness = 0.8;
+          material.envMapIntensity = 1.0;
+          material.normalScale = new THREE.Vector2(1, 1);
+          material.needsUpdate = true;
+        };
+
         if (type === "head" && object.material.name === "mat_head") {
-          object.material.map = texture;
-          object.material.needsUpdate = true;
+          updateMaterial(object.material);
         } else if (
           type === "upper" &&
           (object.material.name === "mat_neck" ||
@@ -239,22 +249,23 @@ export class Avatar {
             object.material.name === "mat_sleeves" ||
             object.material.name === "mat_hands")
         ) {
-          object.material.map = texture;
-          object.material.needsUpdate = true;
+          updateMaterial(object.material);
         } else if (
           type === "lower" &&
           (object.material.name === "mat_shorts" ||
             object.material.name === "mat_stockings" ||
             object.material.name === "mat_feet")
         ) {
-          object.material.map = texture;
-          object.material.needsUpdate = true;
+          updateMaterial(object.material);
         } else if (
           type === "eyes" &&
           object.material.name === "mat_eyeball"
         ) {
-          object.material.map = texture;
-          object.material.needsUpdate = true;
+          updateMaterial(object.material);
+          // Special eye material properties
+          object.material.metalness = 0.5;
+          object.material.roughness = 0.2;
+          object.material.envMapIntensity = 1.5;
         }
       }
     });
@@ -968,9 +979,14 @@ AFRAME.registerComponent("slider", {
     sliderBase.setAttribute("width", this.data.sliderWidth);
     sliderBase.setAttribute("height", this.data.sliderHeight);
     sliderBase.setAttribute("depth", 0.01); // Small depth to ensure raycast hits
-    sliderBase.setAttribute("color", this.data.sliderColor);
-    sliderBase.setAttribute("opacity", 0.5);
-    sliderBase.setAttribute("material", "transparent: true");
+    sliderBase.setAttribute("material", {
+      shader: "standard",
+      color: this.data.sliderColor,
+      opacity: 0.5,
+      transparent: true,
+      metalness: 0.2,
+      roughness: 0.7
+    });
     sliderBase.classList.add("raycaster-target"); // Add class for raycaster
     this.el.appendChild(sliderBase);
 
