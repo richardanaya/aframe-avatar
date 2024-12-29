@@ -177,15 +177,27 @@ export class Avatar {
   }
 
   rotateBone(bone, axis, angleRadians) {
-    const q = new THREE.Quaternion();
-    const vec = new THREE.Vector3();
-
-    if (axis === "x") vec.set(1, 0, 0);
-    else if (axis === "y") vec.set(0, 1, 0);
-    else if (axis === "z") vec.set(0, 0, 1);
-
-    q.setFromAxisAngle(vec, angleRadians);
-    bone.quaternion.premultiply(q);
+    // Store absolute rotation values in bone.userData if not already present
+    if (!bone.userData.absoluteRotation) {
+      bone.userData.absoluteRotation = { x: 0, y: 0, z: 0 };
+    }
+    
+    // Update the absolute rotation for this axis
+    bone.userData.absoluteRotation[axis] = angleRadians;
+    
+    // Reset quaternion and apply absolute rotations in order
+    bone.quaternion.identity();
+    const order = ['x', 'y', 'z'];
+    order.forEach(ax => {
+      const q = new THREE.Quaternion();
+      const vec = new THREE.Vector3();
+      if (ax === 'x') vec.set(1, 0, 0);
+      else if (ax === 'y') vec.set(0, 1, 0);
+      else if (ax === 'z') vec.set(0, 0, 1);
+      q.setFromAxisAngle(vec, bone.userData.absoluteRotation[ax]);
+      bone.quaternion.multiply(q);
+    });
+    
     bone.updateMatrixWorld(true);
   }
 
