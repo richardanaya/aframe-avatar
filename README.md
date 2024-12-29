@@ -39,3 +39,4 @@ This is extremely alpha. MIT licensed.
 * Pose as JSON
 * PBR textures
 * Animation builder
+* eye textures
