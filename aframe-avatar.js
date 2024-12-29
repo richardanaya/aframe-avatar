@@ -157,7 +157,7 @@ export class Avatar {
           this.gltf = gltfResult;
           scene.add(this.gltf.scene);
           this.setupBones();
-          console.log('Avatar model loaded successfully:', this.modelUrl);
+          console.log("Avatar model loaded successfully:", this.modelUrl);
           resolve(this);
         },
         (xhr) => {
@@ -182,18 +182,18 @@ export class Avatar {
     if (!bone.userData.absoluteRotation) {
       bone.userData.absoluteRotation = { x: 0, y: 0, z: 0 };
     }
-    
+
     // Update the absolute rotation for this axis
     bone.userData.absoluteRotation[axis] = angleRadians;
-    
+
     // Create a new quaternion for the complete rotation
     const euler = new THREE.Euler(
       bone.userData.absoluteRotation.x,
-      bone.userData.absoluteRotation.y, 
+      bone.userData.absoluteRotation.y,
       bone.userData.absoluteRotation.z,
-      'XYZ'
+      "XYZ"
     );
-    
+
     // Set the bone's quaternion directly from the euler angles
     bone.quaternion.setFromEuler(euler);
     bone.updateMatrixWorld(true);
@@ -498,8 +498,8 @@ AFRAME.registerComponent("avatar-model", {
       sliderEntity.appendChild(label);
 
       // Find the bone object from avatar's bones
-      const boneObject = this.avatar.getBones().find(b => b.name === bone);
-      
+      const boneObject = this.avatar.getBones().find((b) => b.name === bone);
+
       // Initialize absoluteRotation in userData if it doesn't exist
       if (boneObject && !boneObject.userData.absoluteRotation) {
         boneObject.userData.absoluteRotation = { x: 0, y: 0, z: 0 };
@@ -600,7 +600,7 @@ AFRAME.registerComponent("avatar-model", {
 
         button.addEventListener("click", handleCategorySelect);
         button.addEventListener("triggerdown", handleCategorySelect);
-        
+
         // Add hover effect
         button.addEventListener("mouseenter", () => {
           bgPlane.setAttribute("material", {
@@ -914,7 +914,7 @@ AFRAME.registerComponent("slider", {
     this.onClick = this.onClick.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
-    
+
     // Add event listeners
     this.el.addEventListener("click", this.onClick);
     this.el.addEventListener("triggerdown", this.onClick);
@@ -926,18 +926,23 @@ AFRAME.registerComponent("slider", {
     // State tracking
     this.touching = false;
     this.lastIntersection = null;
-    
+    this.ray = null;
+
     this.el.addEventListener("raycaster-intersected", (evt) => {
+      console.log("hover");
       this.intersected = true;
       this.raycasterEl = evt.detail.el;
-      
+      this.ray = evt.target;
+
       // Get initial intersection point
-      const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+      const intersection =
+        this.raycasterEl.components.raycaster.getIntersection(this.ray);
       if (intersection) {
         this.lastIntersection = intersection.point;
       }
     });
     this.el.addEventListener("raycaster-intersected-cleared", () => {
+      console.log("clear");
       this.intersected = false;
       this.raycasterEl = null;
     });
@@ -996,18 +1001,23 @@ AFRAME.registerComponent("slider", {
     this.updateValueFromEvent(evt);
   },
 
-  onDragStart: function(evt) {
+  onDragStart: function (evt) {
+    console.log("trigger start");
     this.dragging = true;
+    debugger;
+    this.ray = evt.target;
     this.updateValueFromEvent(evt);
   },
 
-  onDragEnd: function() {
+  onDragEnd: function () {
+    console.log("trigger end");
     this.dragging = false;
   },
 
-  tick: function() {
+  tick: function () {
     if (this.dragging && this.intersected && this.raycasterEl) {
-      const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+      const intersection =
+        this.raycasterEl.components.raycaster.getIntersection(this.ray);
       if (intersection) {
         this.lastIntersection = intersection.point;
         this.updateValueFromIntersection(intersection.point);
@@ -1015,17 +1025,19 @@ AFRAME.registerComponent("slider", {
     }
   },
 
-  updateValueFromEvent: function(evt) {
+  updateValueFromEvent: function (evt) {
     if (!this.intersected || !this.raycasterEl) return;
 
-    const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+    const intersection = this.raycasterEl.components.raycaster.getIntersection(
+      this.el
+    );
     if (intersection) {
       this.lastIntersection = intersection.point;
       this.updateValueFromIntersection(intersection.point);
     }
   },
 
-  updateValueFromIntersection: function(point) {
+  updateValueFromIntersection: function (point) {
     if (!point) return;
 
     // Calculate normalized position (-0.5 to 0.5)
@@ -1036,8 +1048,9 @@ AFRAME.registerComponent("slider", {
     this.el.object3D.getWorldScale(worldScale);
 
     const currentValue = point[this.data.axis];
-    const normalizedPos = (currentValue - sliderPos[this.data.axis]) / 
-                         (this.data.sliderWidth * worldScale[this.data.axis]);
+    const normalizedPos =
+      (currentValue - sliderPos[this.data.axis]) /
+      (this.data.sliderWidth * worldScale[this.data.axis]);
 
     // Map to value range
     const range = this.data.max - this.data.min;
