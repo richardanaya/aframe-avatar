@@ -525,11 +525,32 @@ AFRAME.registerComponent("avatar-model", {
 
       categories.forEach((category, index) => {
         const button = document.createElement("a-entity");
+        // Define the handler first
+        const handleCategorySelect = () => {
+          // Reset all buttons to default color
+          Object.values(this.categoryButtons).forEach((btn) => {
+            btn.setAttribute("material", {
+              color: "#444444",
+              opacity: 0.8,
+            });
+          });
+
+          // Highlight selected button
+          button.setAttribute("material", {
+            color: "#ff4444",
+            opacity: 0.8,
+          });
+
+          // Update current category and refresh sliders
+          this.currentCategory = category;
+          createSlidersForCategory(category);
+        };
+
         button.setAttribute("geometry", {
           primitive: "plane",
           width: 0.8,
           height: 0.3,
-        };
+        });
         
         button.addEventListener("click", handleCategorySelect);
         button.addEventListener("triggerdown", handleCategorySelect);
@@ -554,25 +575,6 @@ AFRAME.registerComponent("avatar-model", {
 
         // Add click handler
         // Add both click and trigger events for VR controller support
-        const handleCategorySelect = () => {
-          // Reset all buttons to default color
-          Object.values(this.categoryButtons).forEach((btn) => {
-            btn.setAttribute("material", {
-              color: "#444444",
-              opacity: 0.8,
-            });
-          });
-
-          // Highlight selected button
-          button.setAttribute("material", {
-            color: "#ff4444",
-            opacity: 0.8,
-          });
-
-          // Update current category and refresh sliders
-          this.currentCategory = category;
-          createSlidersForCategory(category);
-        });
 
         buttonContainer.appendChild(button);
       });
