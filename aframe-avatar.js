@@ -249,6 +249,12 @@ export class Avatar {
         ) {
           object.material.map = texture;
           object.material.needsUpdate = true;
+        } else if (
+          type === "eyes" &&
+          object.material.name === "mat_eyeball"
+        ) {
+          object.material.map = texture;
+          object.material.needsUpdate = true;
         }
       }
     });
@@ -426,6 +432,7 @@ AFRAME.registerComponent("avatar-model", {
     headTexture: { type: "string", default: "" },
     upperTexture: { type: "string", default: "" },
     lowerTexture: { type: "string", default: "" },
+    eyeTexture: { type: "string", default: "" },
     bvhUrl: { type: "string", default: "" },
     editor: { type: "boolean", default: false },
   },
@@ -811,6 +818,9 @@ AFRAME.registerComponent("avatar-model", {
       }
       if (this.data.lowerTexture) {
         this.avatar.updateTexture("lower", this.data.lowerTexture);
+      }
+      if (this.data.eyeTexture) {
+        this.avatar.updateTexture("eyes", this.data.eyeTexture);
       }
 
       // Load BVH animation if provided
