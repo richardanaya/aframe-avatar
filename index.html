@@ -57,8 +57,9 @@
         <!-- Right Controller -->
         <a-entity
           oculus-touch-controls="hand: right"
-          raycaster="objects: [slider]; far: 5"
+          raycaster="objects: .raycaster-target; far: 5; interval: 0; showLine: true"
           laser-controls="hand: right"
+          line="color: #FF0000; opacity: 0.75"
         ></a-entity>
       </a-entity>
 

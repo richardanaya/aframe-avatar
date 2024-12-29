@@ -850,7 +850,18 @@ AFRAME.registerComponent("slider", {
     // Add touch/mouse/VR event listeners
     this.el.addEventListener("mousedown", this.onTouchStart);
     this.el.addEventListener("touchstart", this.onTouchStart);
-    this.el.addEventListener("raycaster-intersected", this.onTouchStart);
+    
+    // VR Controller interaction events
+    this.el.addEventListener("click", this.onTouchStart);
+    this.el.addEventListener("raycaster-intersected", () => {
+      this.intersected = true;
+    });
+    this.el.addEventListener("raycaster-intersected-cleared", () => {
+      this.intersected = false;
+      if (this.isDragging) {
+        this.onTouchEnd();
+      }
+    });
 
     // Store initial position
     this.startPosition = new THREE.Vector3();
@@ -911,7 +922,9 @@ AFRAME.registerComponent("slider", {
   },
 
   onTouchStart: function (evt) {
-    evt.preventDefault();
+    if (evt) {
+      evt.preventDefault();
+    }
     this.isDragging = true;
 
     // Add move and end listeners
@@ -920,12 +933,23 @@ AFRAME.registerComponent("slider", {
     window.addEventListener("mouseup", this.onTouchEnd);
     window.addEventListener("touchend", this.onTouchEnd);
 
-    // Get intersection point
+    // For VR controller interaction
+    if (this.intersected) {
+      const raycaster = this.el.components["raycaster-intersected"].el.components.raycaster;
+      if (raycaster) {
+        const intersection = raycaster.getIntersection(this.el);
+        if (intersection) {
+          this.startPosition.copy(intersection.point);
+          return;
+        }
+      }
+    }
+
+    // Fallback to mouse/touch interaction
     const intersection = this.getIntersection(evt);
     if (intersection) {
       this.startPosition.copy(intersection.point);
     } else {
-      // Fallback to object position if no intersection
       this.el.object3D.getWorldPosition(this.startPosition);
     }
   },
