@@ -2,7 +2,7 @@
 
 An avatar for the web metaverse.
 
-This is extremely alpha.
+This is extremely alpha. MIT licensed.
 
 [demo](https://richardanaya.github.io/aframe-avatar/)
 
