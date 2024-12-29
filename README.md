@@ -1,6 +1,6 @@
 # A-frame Avatar
 
-An avatar for the web metaverse.
+An avatar for the web metaverse. 100+ bones to build characters with!
 
 This is extremely alpha. MIT licensed.
 
@@ -16,6 +16,16 @@ This is extremely alpha. MIT licensed.
 * using a complex avatar mesh like https://github.com/RuthAndRoth/Ruth2
 
 ```
+<script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"
+        }
+      }
+</script>
+<script src="https://richardanaya.github.io/aframe-avatar/aframe-avatar.js"></script>
+...
  <a-entity
     position="0 0 0"
     avatar-model="
@@ -29,3 +39,16 @@ This is extremely alpha. MIT licensed.
   >
   </a-entity>
 ```
+
+# Bugs
+* BVH with legs can be janky
+* intiial values of sliders
+* sliders feel weird (can't actually slide)
+
+# Things i'd like to do
+* Pose as JSON
+* PBR textures
+* Animation builder
+* eye textures
+* make distributing this thing better
+* ability to tell avatar to walk to a location with a walking animation controller
