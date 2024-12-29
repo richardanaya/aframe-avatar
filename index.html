@@ -46,6 +46,20 @@
           wasd-controls
           cursor="rayOrigin: mouse"
         ></a-camera>
+        
+        <!-- Left Controller -->
+        <a-entity
+          oculus-touch-controls="hand: left"
+          raycaster="objects: [slider]; far: 5"
+          laser-controls="hand: left"
+        ></a-entity>
+        
+        <!-- Right Controller -->
+        <a-entity
+          oculus-touch-controls="hand: right"
+          raycaster="objects: [slider]; far: 5"
+          laser-controls="hand: right"
+        ></a-entity>
       </a-entity>
 
       <a-entity
