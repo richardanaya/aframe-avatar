@@ -483,7 +483,7 @@ AFRAME.registerComponent("avatar-model", {
       label.setAttribute("value", key);
       label.setAttribute("position", "-0.5 0 0");
       label.setAttribute("scale", "0.2 0.2 0.2");
-      label.setAttribute("color", "#ff0000");
+      label.setAttribute("color", "#2C3E50");
       label.setAttribute("align", "right");
       sliderEntity.appendChild(label);
 
@@ -505,7 +505,7 @@ AFRAME.registerComponent("avatar-model", {
     title.setAttribute("value", bone);
     title.setAttribute("position", `0 ${keys.length * -0.05} 0`);
     title.setAttribute("scale", "0.25 0.25 0.25");
-    title.setAttribute("color", "#ff0000");
+    title.setAttribute("color", "#2C3E50");
     // center
     title.setAttribute("align", "center");
     parentContainer.appendChild(title);
