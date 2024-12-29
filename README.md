@@ -1,8 +1,8 @@
-A-frame Avatar
+# A-frame Avatar
 
 An avatar for the web metaverse.
 
-# Feature
+## Features
 * editors with sliders of every bone
 * textures
 * bvh
