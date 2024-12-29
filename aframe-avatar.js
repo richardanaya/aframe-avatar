@@ -910,11 +910,25 @@ AFRAME.registerComponent("slider", {
   },
 
   init: function () {
-    // Add click/trigger event listeners
+    // Bind event handlers
     this.onClick = this.onClick.bind(this);
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    
+    // Add event listeners
     this.el.addEventListener("click", this.onClick);
     this.el.addEventListener("triggerdown", this.onClick);
+    this.el.addEventListener("mousedown", this.onTouchStart);
+    this.el.addEventListener("mouseup", this.onTouchEnd);
+    this.el.addEventListener("mousemove", this.onTouchMove);
+    this.el.addEventListener("touchstart", this.onTouchStart);
+    this.el.addEventListener("touchmove", this.onTouchMove); 
+    this.el.addEventListener("touchend", this.onTouchEnd);
 
+    // Touch state tracking
+    this.touching = false;
+    
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.intersected = true;
       this.raycasterEl = evt.detail.el;
@@ -975,23 +989,53 @@ AFRAME.registerComponent("slider", {
   },
 
   onClick: function (evt) {
-    if (!this.intersected || !evt.detail.intersection) return;
+    this.updateValueFromEvent(evt);
+  },
 
-    const intersection = evt.detail.intersection;
-    const currentPos = new THREE.Vector3();
-    this.el.object3D.getWorldPosition(currentPos);
+  onTouchStart: function(evt) {
+    this.touching = true;
+    this.updateValueFromEvent(evt);
+  },
 
-    // Calculate normalized position (-0.5 to 0.5) based on intersection point
+  onTouchMove: function(evt) {
+    if (this.touching) {
+      this.updateValueFromEvent(evt);
+    }
+  },
+
+  onTouchEnd: function() {
+    this.touching = false;
+  },
+
+  updateValueFromEvent: function(evt) {
+    if (!this.intersected) return;
+
+    // Get intersection point
+    let point;
+    if (evt.detail && evt.detail.intersection) {
+      point = evt.detail.intersection.point;
+    } else if (evt.touches) {
+      // Handle touch events
+      const touch = evt.touches[0];
+      const rect = evt.target.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const normalizedX = x / rect.width;
+      point = {};
+      point[this.data.axis] = normalizedX;
+    } else {
+      return;
+    }
+
+    // Calculate normalized position (-0.5 to 0.5)
     const sliderPos = new THREE.Vector3();
     this.el.object3D.getWorldPosition(sliderPos);
 
     const worldScale = new THREE.Vector3();
     this.el.object3D.getWorldScale(worldScale);
 
-    const currentValue = intersection.point[this.data.axis];
-    const normalizedPos =
-      (currentValue - sliderPos[this.data.axis]) /
-      (this.data.sliderWidth * worldScale[this.data.axis]);
+    const currentValue = point[this.data.axis];
+    const normalizedPos = (currentValue - sliderPos[this.data.axis]) / 
+                         (this.data.sliderWidth * worldScale[this.data.axis]);
 
     // Map to value range
     const range = this.data.max - this.data.min;
@@ -1012,5 +1056,11 @@ AFRAME.registerComponent("slider", {
     // Clean up event listeners
     this.el.removeEventListener("click", this.onClick);
     this.el.removeEventListener("triggerdown", this.onClick);
+    this.el.removeEventListener("mousedown", this.onTouchStart);
+    this.el.removeEventListener("mouseup", this.onTouchEnd);
+    this.el.removeEventListener("mousemove", this.onTouchMove);
+    this.el.removeEventListener("touchstart", this.onTouchStart);
+    this.el.removeEventListener("touchmove", this.onTouchMove);
+    this.el.removeEventListener("touchend", this.onTouchEnd);
   },
 });
