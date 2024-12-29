@@ -496,11 +496,24 @@ AFRAME.registerComponent("avatar-model", {
       label.setAttribute("align", "right");
       sliderEntity.appendChild(label);
 
-      // Setup slider with proper range
+      // Get current bone value based on the target
+      let currentValue = 0;
+      if (key === "scale") {
+        currentValue = bone.scale.x * 100;
+      } else if (key.startsWith("pos")) {
+        const axis = key.split("_")[1];
+        currentValue = bone.position[axis];
+      } else if (key.startsWith("rot")) {
+        const axis = key.split("_")[1];
+        currentValue = bone.userData.absoluteRotation ? 
+          bone.userData.absoluteRotation[axis] : 0;
+      }
+
+      // Setup slider with proper range and current value
       sliderEntity.setAttribute("slider", {
         min: range.min,
         max: range.max,
-        value: key === "scale" ? 100 : 0,
+        value: currentValue,
         axis: "x",
         sliderWidth: 1,
         sliderHeight: 0.02,
