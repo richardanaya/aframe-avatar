@@ -496,21 +496,26 @@ AFRAME.registerComponent("avatar-model", {
       label.setAttribute("align", "right");
       sliderEntity.appendChild(label);
 
+      // Find the bone object from avatar's bones
+      const boneObject = this.avatar.getBones().find(b => b.name === bone);
+      
       // Initialize absoluteRotation in userData if it doesn't exist
-      if (!bone.userData.absoluteRotation) {
-        bone.userData.absoluteRotation = { x: 0, y: 0, z: 0 };
+      if (boneObject && !boneObject.userData.absoluteRotation) {
+        boneObject.userData.absoluteRotation = { x: 0, y: 0, z: 0 };
       }
 
       // Get current bone value based on the target
       let currentValue = 0;
-      if (key === "scale") {
-        currentValue = bone.scale.x * 100;
-      } else if (key.startsWith("pos")) {
-        const axis = key.split("_")[1];
-        currentValue = bone.position[axis];
-      } else if (key.startsWith("rot")) {
-        const axis = key.split("_")[1];
-        currentValue = bone.userData.absoluteRotation[axis];
+      if (boneObject) {
+        if (key === "scale") {
+          currentValue = boneObject.scale.x * 100;
+        } else if (key.startsWith("pos")) {
+          const axis = key.split("_")[1];
+          currentValue = boneObject.position[axis];
+        } else if (key.startsWith("rot")) {
+          const axis = key.split("_")[1];
+          currentValue = boneObject.userData.absoluteRotation[axis];
+        }
       }
 
       // Setup slider with proper range and current value
