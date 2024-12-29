@@ -185,19 +185,16 @@ export class Avatar {
     // Update the absolute rotation for this axis
     bone.userData.absoluteRotation[axis] = angleRadians;
     
-    // Reset quaternion and apply absolute rotations in order
-    bone.quaternion.identity();
-    const order = ['x', 'y', 'z'];
-    order.forEach(ax => {
-      const q = new THREE.Quaternion();
-      const vec = new THREE.Vector3();
-      if (ax === 'x') vec.set(1, 0, 0);
-      else if (ax === 'y') vec.set(0, 1, 0);
-      else if (ax === 'z') vec.set(0, 0, 1);
-      q.setFromAxisAngle(vec, bone.userData.absoluteRotation[ax]);
-      bone.quaternion.multiply(q);
-    });
+    // Create a new quaternion for the complete rotation
+    const euler = new THREE.Euler(
+      bone.userData.absoluteRotation.x,
+      bone.userData.absoluteRotation.y, 
+      bone.userData.absoluteRotation.z,
+      'XYZ'
+    );
     
+    // Set the bone's quaternion directly from the euler angles
+    bone.quaternion.setFromEuler(euler);
     bone.updateMatrixWorld(true);
   }
 
