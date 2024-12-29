@@ -1,6 +1,6 @@
 # A-frame Avatar
 
-An avatar for the web metaverse.
+An avatar for the web metaverse. 100+ bones to build characters with!
 
 This is extremely alpha. MIT licensed.
 
