@@ -529,16 +529,20 @@ AFRAME.registerComponent("avatar-model", {
         const handleCategorySelect = () => {
           // Reset all buttons to default color
           Object.values(this.categoryButtons).forEach((btn) => {
-            btn.setAttribute("material", {
-              color: "#444444",
-              opacity: 0.8,
+            btn.firstChild.setAttribute("material", {
+              color: "#2c3e50",
+              metalness: 0.2,
+              roughness: 0.8,
+              opacity: 0.9,
             });
           });
 
-          // Highlight selected button
-          button.setAttribute("material", {
-            color: "#ff4444",
-            opacity: 0.8,
+          // Highlight selected button with a nice teal color
+          button.firstChild.setAttribute("material", {
+            color: "#16a085",
+            metalness: 0.3,
+            roughness: 0.7,
+            opacity: 0.95,
           });
 
           // Update current category and refresh sliders
@@ -546,17 +550,39 @@ AFRAME.registerComponent("avatar-model", {
           createSlidersForCategory(category);
         };
 
-        button.setAttribute("geometry", {
+        // Create background gradient plane
+        const bgPlane = document.createElement("a-entity");
+        bgPlane.setAttribute("geometry", {
           primitive: "plane",
           width: 0.8,
           height: 0.3,
         });
+        bgPlane.setAttribute("material", {
+          shader: "standard",
+          color: "#2c3e50",
+          metalness: 0.2,
+          roughness: 0.8,
+          opacity: 0.9,
+        });
+        button.appendChild(bgPlane);
 
         button.addEventListener("click", handleCategorySelect);
         button.addEventListener("triggerdown", handleCategorySelect);
-        button.setAttribute("material", {
-          color: "#444444",
-          opacity: 0.8,
+        
+        // Add hover effect
+        button.addEventListener("mouseenter", () => {
+          bgPlane.setAttribute("material", {
+            color: "#34495e",
+            metalness: 0.3,
+          });
+        });
+        button.addEventListener("mouseleave", () => {
+          if (category !== this.currentCategory) {
+            bgPlane.setAttribute("material", {
+              color: "#2c3e50",
+              metalness: 0.2,
+            });
+          }
         });
         button.classList.add("raycaster-target");
         button.setAttribute("position", `${(index - 2) * 1} 0 0`);
@@ -565,8 +591,8 @@ AFRAME.registerComponent("avatar-model", {
         const text = document.createElement("a-text");
         text.setAttribute("value", boneCategories[category].name);
         text.setAttribute("align", "center");
-        text.setAttribute("color", "#ffffff");
-        text.setAttribute("scale", "0.3 0.3 0.3");
+        text.setAttribute("color", "#ecf0f1");
+        text.setAttribute("scale", "0.35 0.35 0.35");
         text.setAttribute("position", "0 0 0.01");
         button.appendChild(text);
 
