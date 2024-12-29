@@ -529,11 +529,15 @@ AFRAME.registerComponent("avatar-model", {
           primitive: "plane",
           width: 0.8,
           height: 0.3,
-        });
+        };
+        
+        button.addEventListener("click", handleCategorySelect);
+        button.addEventListener("triggerdown", handleCategorySelect);
         button.setAttribute("material", {
           color: "#444444",
           opacity: 0.8,
         });
+        button.classList.add("raycaster-target");
         button.setAttribute("position", `${(index - 2) * 1} 0 0`);
 
         // Add text label
@@ -549,7 +553,8 @@ AFRAME.registerComponent("avatar-model", {
         this.categoryButtons[category] = button;
 
         // Add click handler
-        button.addEventListener("click", () => {
+        // Add both click and trigger events for VR controller support
+        const handleCategorySelect = () => {
           // Reset all buttons to default color
           Object.values(this.categoryButtons).forEach((btn) => {
             btn.setAttribute("material", {
