@@ -16,6 +16,16 @@ This is extremely alpha. MIT licensed.
 * using a complex avatar mesh like https://github.com/RuthAndRoth/Ruth2
 
 ```
+<script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"
+        }
+      }
+</script>
+<script src="https://richardanaya.github.io/aframe-avatar/aframe-avatar.js"></script>
+...
  <a-entity
     position="0 0 0"
     avatar-model="
