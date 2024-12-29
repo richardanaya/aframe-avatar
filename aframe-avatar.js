@@ -157,6 +157,7 @@ export class Avatar {
           this.gltf = gltfResult;
           scene.add(this.gltf.scene);
           this.setupBones();
+          console.log('Avatar model loaded successfully:', this.modelUrl);
           resolve(this);
         },
         (xhr) => {
