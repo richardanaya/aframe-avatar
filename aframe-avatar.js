@@ -551,7 +551,7 @@ AFRAME.registerComponent("avatar-model", {
           width: 0.8,
           height: 0.3,
         });
-        
+
         button.addEventListener("click", handleCategorySelect);
         button.addEventListener("triggerdown", handleCategorySelect);
         button.setAttribute("material", {
@@ -854,19 +854,19 @@ AFRAME.registerComponent("slider", {
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
-    
+
     // Set up tick for continuous VR controller updates
     this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
     // Add touch/mouse/VR event listeners
     this.el.addEventListener("mousedown", this.onTouchStart);
     this.el.addEventListener("touchstart", this.onTouchStart);
-    
+
     // VR Controller interaction events
     this.el.addEventListener("click", this.onTouchStart);
     this.el.addEventListener("triggerdown", this.onTouchStart);
     this.el.addEventListener("triggerup", this.onTouchEnd);
-    
+
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.intersected = true;
       this.raycasterEl = evt.detail.el;
@@ -891,11 +891,11 @@ AFRAME.registerComponent("slider", {
     const sliderBase = document.createElement("a-box");
     sliderBase.setAttribute("width", this.data.sliderWidth);
     sliderBase.setAttribute("height", this.data.sliderHeight);
-    sliderBase.setAttribute("depth", 0.01);  // Small depth to ensure raycast hits
+    sliderBase.setAttribute("depth", 0.01); // Small depth to ensure raycast hits
     sliderBase.setAttribute("color", this.data.sliderColor);
     sliderBase.setAttribute("opacity", 0.5);
     sliderBase.setAttribute("material", "transparent: true");
-    sliderBase.classList.add("raycaster-target");  // Add class for raycaster
+    sliderBase.classList.add("raycaster-target"); // Add class for raycaster
     this.el.appendChild(sliderBase);
 
     // Create text indicator
@@ -951,14 +951,8 @@ AFRAME.registerComponent("slider", {
 
     // For VR controller interaction
     if (this.intersected) {
-      const raycaster = this.el.components["raycaster-intersected"].el.components.raycaster;
-      if (raycaster) {
-        const intersection = raycaster.getIntersection(this.el);
-        if (intersection) {
-          this.startPosition.copy(intersection.point);
-          return;
-        }
-      }
+      const intersection = evt.detail.intersection;
+      this.startPosition.copy(intersection.point);
     }
 
     // Fallback to mouse/touch interaction
@@ -974,15 +968,15 @@ AFRAME.registerComponent("slider", {
     if (!this.isDragging) return;
 
     let intersection;
-    
+
     // Handle VR controller movement
-    if (this.intersected && this.raycasterEl) {
-      intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+    if (this.intersected) {
+      intersection = evt.detail.intersection;
     } else {
       // Fallback to mouse/touch intersection
       intersection = this.getIntersection(evt);
     }
-    
+
     if (!intersection) return;
 
     const currentPos = new THREE.Vector3();
@@ -1063,23 +1057,12 @@ AFRAME.registerComponent("slider", {
   },
 
   getIntersection: function (evt) {
-    // Get normalized mouse coordinates
-    this.mouse.copy(this.getMouseFromEvent(evt));
-
-    // Setup raycaster with camera
-    const cameraEl = document.querySelector("[camera]");
-    const camera = cameraEl.getObject3D("camera");
-    this.raycaster.setFromCamera(this.mouse, camera);
-
-    // Calculate objects intersecting the picking ray
-    const intersects = this.raycaster.intersectObject(this.el.object3D, true);
-
-    return intersects.length > 0 ? intersects[0] : null;
+    return evt.detail.intersection;
   },
 
   tick: function () {
     // Update slider value during VR controller drag
-    if (this.isDragging && this.intersected && this.raycasterEl) {
+    if (this.isDragging && this.intersected) {
       this.onTouchMove();
     }
   },
