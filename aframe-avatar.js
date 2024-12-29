@@ -850,9 +850,13 @@ AFRAME.registerComponent("slider", {
   },
 
   init: function () {
+    // Bind methods to maintain correct 'this' context
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
+    
+    // Set up tick for continuous VR controller updates
+    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
 
     // Add touch/mouse/VR event listeners
     this.el.addEventListener("mousedown", this.onTouchStart);
@@ -860,11 +864,16 @@ AFRAME.registerComponent("slider", {
     
     // VR Controller interaction events
     this.el.addEventListener("click", this.onTouchStart);
-    this.el.addEventListener("raycaster-intersected", () => {
+    this.el.addEventListener("triggerdown", this.onTouchStart);
+    this.el.addEventListener("triggerup", this.onTouchEnd);
+    
+    this.el.addEventListener("raycaster-intersected", (evt) => {
       this.intersected = true;
+      this.raycasterEl = evt.detail.el;
     });
     this.el.addEventListener("raycaster-intersected-cleared", () => {
       this.intersected = false;
+      this.raycasterEl = null;
       if (this.isDragging) {
         this.onTouchEnd();
       }
@@ -964,7 +973,16 @@ AFRAME.registerComponent("slider", {
   onTouchMove: function (evt) {
     if (!this.isDragging) return;
 
-    const intersection = this.getIntersection(evt);
+    let intersection;
+    
+    // Handle VR controller movement
+    if (this.intersected && this.raycasterEl) {
+      intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+    } else {
+      // Fallback to mouse/touch intersection
+      intersection = this.getIntersection(evt);
+    }
+    
     if (!intersection) return;
 
     const currentPos = new THREE.Vector3();
@@ -1059,10 +1077,19 @@ AFRAME.registerComponent("slider", {
     return intersects.length > 0 ? intersects[0] : null;
   },
 
+  tick: function () {
+    // Update slider value during VR controller drag
+    if (this.isDragging && this.intersected && this.raycasterEl) {
+      this.onTouchMove();
+    }
+  },
+
   remove: function () {
     // Clean up event listeners
     this.el.removeEventListener("mousedown", this.onTouchStart);
     this.el.removeEventListener("touchstart", this.onTouchStart);
+    this.el.removeEventListener("triggerdown", this.onTouchStart);
+    this.el.removeEventListener("triggerup", this.onTouchEnd);
     window.removeEventListener("mousemove", this.onTouchMove);
     window.removeEventListener("touchmove", this.onTouchMove);
     window.removeEventListener("mouseup", this.onTouchEnd);
