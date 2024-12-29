@@ -846,7 +846,7 @@ AFRAME.registerComponent("slider", {
     sliderHeight: { type: "number", default: 0.05 },
     indicatorRadius: { type: "number", default: 0.08 },
     sliderColor: { type: "color", default: "#666666" },
-    indicatorColor: { type: "color", default: "#FF4444" },
+    indicatorColor: { type: "color", default: "#666666" },
   },
 
   init: function () {
@@ -924,13 +924,14 @@ AFRAME.registerComponent("slider", {
     // Calculate normalized position (-0.5 to 0.5) based on intersection point
     const sliderPos = new THREE.Vector3();
     this.el.object3D.getWorldPosition(sliderPos);
-    
+
     const worldScale = new THREE.Vector3();
     this.el.object3D.getWorldScale(worldScale);
 
     const currentValue = intersection.point[this.data.axis];
-    const normalizedPos = (currentValue - sliderPos[this.data.axis]) / 
-                         (this.data.sliderWidth * worldScale[this.data.axis]);
+    const normalizedPos =
+      (currentValue - sliderPos[this.data.axis]) /
+      (this.data.sliderWidth * worldScale[this.data.axis]);
 
     // Map to value range
     const range = this.data.max - this.data.min;
