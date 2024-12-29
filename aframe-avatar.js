@@ -847,9 +847,10 @@ AFRAME.registerComponent("slider", {
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
 
-    // Add touch/mouse event listeners
+    // Add touch/mouse/VR event listeners
     this.el.addEventListener("mousedown", this.onTouchStart);
     this.el.addEventListener("touchstart", this.onTouchStart);
+    this.el.addEventListener("raycaster-intersected", this.onTouchStart);
 
     // Store initial position
     this.startPosition = new THREE.Vector3();
@@ -863,10 +864,11 @@ AFRAME.registerComponent("slider", {
     const sliderBase = document.createElement("a-box");
     sliderBase.setAttribute("width", this.data.sliderWidth);
     sliderBase.setAttribute("height", this.data.sliderHeight);
-    sliderBase.setAttribute("depth", 0);
+    sliderBase.setAttribute("depth", 0.01);  // Small depth to ensure raycast hits
     sliderBase.setAttribute("color", this.data.sliderColor);
     sliderBase.setAttribute("opacity", 0.5);
     sliderBase.setAttribute("material", "transparent: true");
+    sliderBase.classList.add("raycaster-target");  // Add class for raycaster
     this.el.appendChild(sliderBase);
 
     // Create text indicator
