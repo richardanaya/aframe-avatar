@@ -575,7 +575,7 @@ AFRAME.registerComponent("avatar-model", {
       // Create a container for all bone sliders
       const mainContainer = document.createElement("a-entity");
       mainContainer.setAttribute("position", "0 1.6 1");
-      mainContainer.setAttribute("scale", "0.1 0.1 0.1");
+      mainContainer.setAttribute("scale", "0.15 0.15 0.15");
       this.el.appendChild(mainContainer);
 
       // Store references to containers
