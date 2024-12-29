@@ -912,19 +912,16 @@ AFRAME.registerComponent("slider", {
   init: function () {
     // Bind event handlers
     this.onClick = this.onClick.bind(this);
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchMove = this.onTouchMove.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
     
     // Add event listeners
     this.el.addEventListener("click", this.onClick);
     this.el.addEventListener("triggerdown", this.onClick);
-    this.el.addEventListener("mousedown", this.onTouchStart);
-    this.el.addEventListener("mouseup", this.onTouchEnd);
-    this.el.addEventListener("mousemove", this.onTouchMove);
-    this.el.addEventListener("touchstart", this.onTouchStart);
-    this.el.addEventListener("touchmove", this.onTouchMove); 
-    this.el.addEventListener("touchend", this.onTouchEnd);
+    this.el.addEventListener("mousedown", this.onDragStart);
+    this.el.addEventListener("mouseup", this.onDragEnd);
+    this.el.addEventListener("touchstart", this.onDragStart);
+    this.el.addEventListener("touchend", this.onDragEnd);
 
     // State tracking
     this.touching = false;
@@ -999,24 +996,23 @@ AFRAME.registerComponent("slider", {
     this.updateValueFromEvent(evt);
   },
 
-  onTouchStart: function(evt) {
-    this.touching = true;
+  onDragStart: function(evt) {
+    this.dragging = true;
     this.updateValueFromEvent(evt);
   },
 
-  onTouchMove: function(evt) {
-    if (this.touching && this.intersected && this.raycasterEl) {
-      // Get current intersection
+  onDragEnd: function() {
+    this.dragging = false;
+  },
+
+  tick: function() {
+    if (this.dragging && this.intersected && this.raycasterEl) {
       const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
       if (intersection) {
         this.lastIntersection = intersection.point;
         this.updateValueFromIntersection(intersection.point);
       }
     }
-  },
-
-  onTouchEnd: function() {
-    this.touching = false;
   },
 
   updateValueFromEvent: function(evt) {
@@ -1062,11 +1058,9 @@ AFRAME.registerComponent("slider", {
     // Clean up event listeners
     this.el.removeEventListener("click", this.onClick);
     this.el.removeEventListener("triggerdown", this.onClick);
-    this.el.removeEventListener("mousedown", this.onTouchStart);
-    this.el.removeEventListener("mouseup", this.onTouchEnd);
-    this.el.removeEventListener("mousemove", this.onTouchMove);
-    this.el.removeEventListener("touchstart", this.onTouchStart);
-    this.el.removeEventListener("touchmove", this.onTouchMove);
-    this.el.removeEventListener("touchend", this.onTouchEnd);
+    this.el.removeEventListener("mousedown", this.onDragStart);
+    this.el.removeEventListener("mouseup", this.onDragEnd);
+    this.el.removeEventListener("touchstart", this.onDragStart);
+    this.el.removeEventListener("touchend", this.onDragEnd);
   },
 });
