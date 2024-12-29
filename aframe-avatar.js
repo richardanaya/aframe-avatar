@@ -616,9 +616,11 @@ AFRAME.registerComponent("avatar-model", {
 
       // Set initial category
       this.currentCategory = "torso";
-      this.categoryButtons["torso"].setAttribute("material", {
-        color: "#ff4444",
-        opacity: 0.8,
+      this.categoryButtons["torso"].firstChild.setAttribute("material", {
+        color: "#16a085",
+        metalness: 0.3,
+        roughness: 0.7,
+        opacity: 0.95,
       });
 
       // Filter and create sliders for bones in current category
