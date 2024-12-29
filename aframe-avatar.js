@@ -233,9 +233,6 @@ export class Avatar {
       if (object.material) {
         const updateMaterial = (material) => {
           material.map = texture;
-          material.metalness = 0.0;
-          material.roughness = 0.8;
-          material.envMapIntensity = 1.0;
           material.normalScale = new THREE.Vector2(1, 1);
           material.needsUpdate = true;
         };
@@ -257,15 +254,8 @@ export class Avatar {
             object.material.name === "mat_feet")
         ) {
           updateMaterial(object.material);
-        } else if (
-          type === "eyes" &&
-          object.material.name === "mat_eyeball"
-        ) {
+        } else if (type === "eyes" && object.material.name === "mat_eyeball") {
           updateMaterial(object.material);
-          // Special eye material properties
-          object.material.metalness = 0.5;
-          object.material.roughness = 0.2;
-          object.material.envMapIntensity = 1.5;
         }
       }
     });
@@ -985,7 +975,7 @@ AFRAME.registerComponent("slider", {
       opacity: 0.5,
       transparent: true,
       metalness: 0.2,
-      roughness: 0.7
+      roughness: 0.7,
     });
     sliderBase.classList.add("raycaster-target"); // Add class for raycaster
     this.el.appendChild(sliderBase);
