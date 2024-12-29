@@ -850,22 +850,10 @@ AFRAME.registerComponent("slider", {
   },
 
   init: function () {
-    // Bind methods to maintain correct 'this' context
-    this.onTouchStart = this.onTouchStart.bind(this);
-    this.onTouchMove = this.onTouchMove.bind(this);
-    this.onTouchEnd = this.onTouchEnd.bind(this);
-
-    // Set up tick for continuous VR controller updates
-    this.tick = AFRAME.utils.throttleTick(this.tick, 50, this);
-
-    // Add touch/mouse/VR event listeners
-    this.el.addEventListener("mousedown", this.onTouchStart);
-    this.el.addEventListener("touchstart", this.onTouchStart);
-
-    // VR Controller interaction events
-    this.el.addEventListener("click", this.onTouchStart);
-    this.el.addEventListener("triggerdown", this.onTouchStart);
-    this.el.addEventListener("triggerup", this.onTouchEnd);
+    // Add click/trigger event listeners
+    this.onClick = this.onClick.bind(this);
+    this.el.addEventListener("click", this.onClick);
+    this.el.addEventListener("triggerdown", this.onClick);
 
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.intersected = true;
@@ -874,18 +862,7 @@ AFRAME.registerComponent("slider", {
     this.el.addEventListener("raycaster-intersected-cleared", () => {
       this.intersected = false;
       this.raycasterEl = null;
-      if (this.isDragging) {
-        this.onTouchEnd();
-      }
     });
-
-    // Store initial position
-    this.startPosition = new THREE.Vector3();
-    this.isDragging = false;
-
-    // Setup raycaster
-    this.raycaster = new THREE.Raycaster();
-    this.mouse = new THREE.Vector2();
 
     // Create slider base
     const sliderBase = document.createElement("a-box");
@@ -937,71 +914,23 @@ AFRAME.registerComponent("slider", {
     }
   },
 
-  onTouchStart: function (evt) {
-    if (evt) {
-      evt.preventDefault();
-    }
-    this.isDragging = true;
+  onClick: function (evt) {
+    if (!this.intersected || !evt.detail.intersection) return;
 
-    // Add move and end listeners
-    window.addEventListener("mousemove", this.onTouchMove);
-    window.addEventListener("touchmove", this.onTouchMove);
-    window.addEventListener("mouseup", this.onTouchEnd);
-    window.addEventListener("touchend", this.onTouchEnd);
-
-    // For VR controller interaction
-    if (this.intersected) {
-      const intersection = evt.detail.intersection;
-      this.startPosition.copy(intersection.point);
-    }
-
-    // Fallback to mouse/touch interaction
-    const intersection = this.getIntersection(evt);
-    if (intersection) {
-      this.startPosition.copy(intersection.point);
-    } else {
-      this.el.object3D.getWorldPosition(this.startPosition);
-    }
-  },
-
-  onTouchMove: function (evt) {
-    if (!this.isDragging) return;
-
-    let intersection;
-
-    // Handle VR controller movement
-    if (this.intersected) {
-      intersection = evt.detail.intersection;
-    } else {
-      // Fallback to mouse/touch intersection
-      intersection = this.getIntersection(evt);
-    }
-
-    if (!intersection) return;
-
+    const intersection = evt.detail.intersection;
     const currentPos = new THREE.Vector3();
     this.el.object3D.getWorldPosition(currentPos);
 
-    // Calculate the current position along the slider
-    const currentValue =
-      this.data.axis === "x"
-        ? intersection.point.x
-        : this.data.axis === "y"
-        ? intersection.point.y
-        : intersection.point.z;
-
-    // Get the slider's world position
+    // Calculate normalized position (-0.5 to 0.5) based on intersection point
     const sliderPos = new THREE.Vector3();
     this.el.object3D.getWorldPosition(sliderPos);
-
-    // Get parent's world scale
+    
     const worldScale = new THREE.Vector3();
     this.el.object3D.getWorldScale(worldScale);
 
-    // Calculate normalized position (-0.5 to 0.5) accounting for scale
-    const normalizedPos =
-      (currentValue - sliderPos[this.data.axis]) /
-      (this.data.sliderWidth * worldScale[this.data.axis]);
+    const currentValue = intersection.point[this.data.axis];
+    const normalizedPos = (currentValue - sliderPos[this.data.axis]) / 
+                         (this.data.sliderWidth * worldScale[this.data.axis]);
 
     // Map to value range
     const range = this.data.max - this.data.min;
@@ -1011,71 +940,16 @@ AFRAME.registerComponent("slider", {
       this.data.max
     );
 
-    // Update the component's value
+    // Update component value and UI
     this.el.setAttribute("slider", "value", value);
     this.updateIndicatorPosition();
-
-    // Set the value property on the element
     this.el.value = value;
-
-    // Emit change event with the new value
     this.el.emit("change", { value: value });
-  },
-
-  onTouchEnd: function () {
-    this.isDragging = false;
-
-    // Remove move and end listeners
-    window.removeEventListener("mousemove", this.onTouchMove);
-    window.removeEventListener("touchmove", this.onTouchMove);
-    window.removeEventListener("mouseup", this.onTouchEnd);
-    window.removeEventListener("touchend", this.onTouchEnd);
-
-    console.log("Slider touch end");
-  },
-
-  getMouseFromEvent: function (evt) {
-    const bounds = evt.target.getBoundingClientRect();
-    const x = ((evt.clientX - bounds.left) / bounds.width) * 2 - 1;
-    const y = -((evt.clientY - bounds.top) / bounds.height) * 2 + 1;
-    return new THREE.Vector2(x, y);
-  },
-
-  getMoveEventDetails: function (evt, currentPos, intersection) {
-    return {
-      type: evt.type,
-      clientX: evt.clientX,
-      clientY: evt.clientY,
-      currentPosition: currentPos.clone(),
-      intersection: intersection
-        ? {
-            point: intersection.point,
-            distance: intersection.distance,
-          }
-        : null,
-    };
-  },
-
-  getIntersection: function (evt) {
-    return evt.detail.intersection;
-  },
-
-  tick: function () {
-    // Update slider value during VR controller drag
-    if (this.isDragging && this.intersected) {
-      this.onTouchMove();
-    }
   },
 
   remove: function () {
     // Clean up event listeners
-    this.el.removeEventListener("mousedown", this.onTouchStart);
-    this.el.removeEventListener("touchstart", this.onTouchStart);
-    this.el.removeEventListener("triggerdown", this.onTouchStart);
-    this.el.removeEventListener("triggerup", this.onTouchEnd);
-    window.removeEventListener("mousemove", this.onTouchMove);
-    window.removeEventListener("touchmove", this.onTouchMove);
-    window.removeEventListener("mouseup", this.onTouchEnd);
-    window.removeEventListener("touchend", this.onTouchEnd);
+    this.el.removeEventListener("click", this.onClick);
+    this.el.removeEventListener("triggerdown", this.onClick);
   },
 });
