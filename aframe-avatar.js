@@ -158,6 +158,12 @@ export class Avatar {
           scene.add(this.gltf.scene);
           this.setupBones();
           console.log("Avatar model loaded successfully:", this.modelUrl);
+          // print out all materials
+          this.gltf.scene.traverse((object) => {
+            if (object.material) {
+              console.log(object.material.name);
+            }
+          });
           resolve(this);
         },
         (xhr) => {
@@ -1002,7 +1008,6 @@ AFRAME.registerComponent("slider", {
   },
 
   onDragStart: function (evt) {
-    console.log("trigger start");
     this.dragging = true;
     debugger;
     this.ray = evt.target;
@@ -1010,7 +1015,6 @@ AFRAME.registerComponent("slider", {
   },
 
   onDragEnd: function () {
-    console.log("trigger end");
     this.dragging = false;
   },
 
