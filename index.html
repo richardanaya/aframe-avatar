@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>A-Frame Avatar Demo</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
     <style>
       #controls-panel {
         position: fixed;
@@ -39,6 +40,12 @@
       }
     </script>
     <a-scene>
+      <a-cylinder
+        id="ground"
+        src="https://cdn.aframe.io/a-painter/images/floor.jpg"
+        radius="32"
+        height="0.1"
+      ></a-cylinder>
       <a-entity position="0 0 1.6">
         <a-camera
           look-controls
@@ -50,8 +57,7 @@
         <!-- Left Controller -->
         <a-entity
           oculus-touch-controls="hand: left"
-          raycaster="objects: .raycaster-target; far: 5"
-          laser-controls="hand: left"
+          blink-controls="collisionEntities: [mixin='voxel'], #ground"
         ></a-entity>
 
         <!-- Right Controller -->
@@ -72,6 +78,7 @@
           headTexture: robot_head.png;
           upperTexture: robot_upper.png;
           lowerTexture: robot_lower.png;
+          eyeTexture: robot_eye.png;
           // bvhUrl: pirouette.bvh
           "
       >

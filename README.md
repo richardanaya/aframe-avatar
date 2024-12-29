@@ -49,6 +49,5 @@ This is extremely alpha. MIT licensed.
 * Pose as JSON
 * PBR textures
 * Animation builder
-* eye textures
 * make distributing this thing better
 * ability to tell avatar to walk to a location with a walking animation controller
