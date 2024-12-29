@@ -926,12 +926,19 @@ AFRAME.registerComponent("slider", {
     this.el.addEventListener("touchmove", this.onTouchMove); 
     this.el.addEventListener("touchend", this.onTouchEnd);
 
-    // Touch state tracking
+    // State tracking
     this.touching = false;
+    this.lastIntersection = null;
     
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.intersected = true;
       this.raycasterEl = evt.detail.el;
+      
+      // Get initial intersection point
+      const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+      if (intersection) {
+        this.lastIntersection = intersection.point;
+      }
     });
     this.el.addEventListener("raycaster-intersected-cleared", () => {
       this.intersected = false;
@@ -998,8 +1005,13 @@ AFRAME.registerComponent("slider", {
   },
 
   onTouchMove: function(evt) {
-    if (this.touching) {
-      this.updateValueFromEvent(evt);
+    if (this.touching && this.intersected && this.raycasterEl) {
+      // Get current intersection
+      const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+      if (intersection) {
+        this.lastIntersection = intersection.point;
+        this.updateValueFromIntersection(intersection.point);
+      }
     }
   },
 
@@ -1008,23 +1020,17 @@ AFRAME.registerComponent("slider", {
   },
 
   updateValueFromEvent: function(evt) {
-    if (!this.intersected) return;
+    if (!this.intersected || !this.raycasterEl) return;
 
-    // Get intersection point
-    let point;
-    if (evt.detail && evt.detail.intersection) {
-      point = evt.detail.intersection.point;
-    } else if (evt.touches) {
-      // Handle touch events
-      const touch = evt.touches[0];
-      const rect = evt.target.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const normalizedX = x / rect.width;
-      point = {};
-      point[this.data.axis] = normalizedX;
-    } else {
-      return;
+    const intersection = this.raycasterEl.components.raycaster.getIntersection(this.el);
+    if (intersection) {
+      this.lastIntersection = intersection.point;
+      this.updateValueFromIntersection(intersection.point);
     }
+  },
+
+  updateValueFromIntersection: function(point) {
+    if (!point) return;
 
     // Calculate normalized position (-0.5 to 0.5)
     const sliderPos = new THREE.Vector3();
