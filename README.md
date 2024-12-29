@@ -2,6 +2,10 @@
 
 An avatar for the web metaverse.
 
+This is extremely alpha.
+
+[demo]()
+
 ## Features
 * editors with sliders of every bone
 * textures
